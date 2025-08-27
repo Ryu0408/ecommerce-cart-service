@@ -29,18 +29,20 @@ public class CartController {
     }
 
     @PutMapping("/items/{productId}")
-    public ResponseEntity<Void> setQuantity(@RequestHeader(value="X-User-Id", required=false) Long userId,
-                                            @RequestHeader(value="X-Session-Id", required=false) String sessionId,
-                                            @PathVariable Long productId,
-                                            @Valid @RequestBody UpdateQuantityRequest req) {
+    public ResponseEntity<Void> setQuantity(
+            @RequestHeader(value="X-User-Id", required=false) Long userId,
+            @RequestHeader(value="X-Session-Id", required=false) String sessionId,
+            @PathVariable String productId,
+            @Valid @RequestBody UpdateQuantityRequest req) {
         cartService.setQuantity(key(userId, sessionId), productId, req.quantity());
         return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("/items/{productId}")
-    public ResponseEntity<Void> remove(@RequestHeader(value="X-User-Id", required=false) Long userId,
-                                       @RequestHeader(value="X-Session-Id", required=false) String sessionId,
-                                       @PathVariable Long productId) {
+    public ResponseEntity<Void> remove(
+            @RequestHeader(value="X-User-Id", required=false) Long userId,
+            @RequestHeader(value="X-Session-Id", required=false) String sessionId,
+            @PathVariable String productId) {
         cartService.removeItem(key(userId, sessionId), productId);
         return ResponseEntity.noContent().build();
     }

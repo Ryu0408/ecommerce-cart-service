@@ -31,30 +31,22 @@ public class CartServiceImpl implements CartService {
     }
 
     @Override
-    public void addItem(String key, Long productId, int quantity) {
+    public void addItem(String key, String productId, int quantity) {
         if (quantity <= 0) throw new IllegalArgumentException("quantity must be > 0");
-        var field = String.valueOf(productId);
-        Integer cur = ops().get(key, field);
-        int next = (cur == null ? 0 : cur) + quantity;
-        ops().put(key, field, next);
+        Integer cur = ops().get(key, productId);
+        ops().put(key, productId, (cur == null ? 0 : cur) + quantity);
         touchTTL(key);
     }
 
     @Override
-    public void setQuantity(String key, Long productId, int quantity) {
-        var field = String.valueOf(productId);
-        if (quantity <= 0) {
-            ops().delete(key, field);
-        } else {
-            ops().put(key, field, quantity);
-            touchTTL(key);
-        }
+    public void setQuantity(String key, String productId, int quantity) {
+        if (quantity <= 0) ops().delete(key, productId);
+        else { ops().put(key, productId, quantity); touchTTL(key); }
     }
 
     @Override
-    public void removeItem(String key, Long productId) {
-        ops().delete(key, String.valueOf(productId));
-        touchTTL(key);
+    public void removeItem(String key, String productId) {
+        ops().delete(key, productId); touchTTL(key);
     }
 
     @Override
@@ -64,9 +56,8 @@ public class CartServiceImpl implements CartService {
 
     @Override
     public List<CartItemView> getItems(String key) {
-        Map<String, Integer> map = ops().entries(key);
-        return map.entrySet().stream()
-                .map(e -> new CartItemView(Long.valueOf(e.getKey()), e.getValue()))
+        return ops().entries(key).entrySet().stream()
+                .map(e -> new CartItemView(e.getKey(), e.getValue()))
                 .toList();
     }
 }
